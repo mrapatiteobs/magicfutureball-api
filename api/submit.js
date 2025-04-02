@@ -18,10 +18,12 @@ export default async function handler(req, res) {
 
       // ✅ Forward the data to Google Sheets webhook
       await fetch("https://script.google.com/macros/s/AKfycbwAoeRrWPFfHJusjpnytDpkhHbeWH3az9PiQ9yKwN6USZMl5xC6ch-cUzQZtzqgLFE/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-      });
+       method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data) // ✅ MUST stringify it
+});
 
       return res.status(200).json({ success: true, message: "Saved to Google Sheets", data });
     } catch (error) {
