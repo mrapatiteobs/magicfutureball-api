@@ -9,15 +9,16 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      // Parse JSON body manually
+      // Parse the raw request body manually
       const buffers = [];
       for await (const chunk of req) {
         buffers.push(chunk);
       }
       const bodyStr = Buffer.concat(buffers).toString();
-      const data = JSON.parse(bodyStr); // 👈 parse manually
+      const data = JSON.parse(bodyStr); // parse JSON body
 
-      console.log(data); // for debugging
+      console.log(data); // For debugging
+
       return res.status(200).json({ message: "Form submitted!", data });
     } catch (error) {
       console.error("Error in POST:", error);
