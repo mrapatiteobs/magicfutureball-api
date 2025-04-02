@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       const data = JSON.parse(bodyStr);
 
       // ✅ Forward the data to Google Sheets webhook
-      await fetch("https://docs.google.com/spreadsheets/d/19zuSvhVMuLGPYN53YpQ-KxHdMZrUNOxquky5EYijlWU/edit?gid=0#gid=0", {
+      await fetch("https://script.google.com/macros/s/AKfycbwAoeRrWPFfHJusjpnytDpkhHbeWH3az9PiQ9yKwN6USZMl5xC6ch-cUzQZtzqgLFE/exec", {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
