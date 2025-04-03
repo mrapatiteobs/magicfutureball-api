@@ -9,14 +9,14 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const data = req.body; // ✅ Use body directly on Vercel
+      const data = req.body;
 
       const recaptchaToken = data["g-recaptcha-response"];
       if (!recaptchaToken) {
         return res.status(400).json({ success: false, message: "Missing reCAPTCHA token" });
       }
 
-      // ✅ Verify reCAPTCHA with Google
+      // ✅ Verify reCAPTCHA token with Google
       const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -27,27 +27,29 @@ export default async function handler(req, res) {
       });
 
       const verification = await verifyRes.json();
+      console.log("🔍 reCAPTCHA verification:", verification); // Optional for debugging
 
       if (!verification.success) {
-        return res.status(403).json({ success: false, message: "Failed reCAPTCHA verification" });
+        return res.status(403).json({ success: false, message: "reCAPTCHA failed" });
       }
 
-      // ✅ Forward to Google Sheets Web App
+      // ✅ Forward to your Google Sheets Web App
       const sheetRes = await fetch("https://script.google.com/macros/s/AKfycby5wcQ3RMSwm8Rnrd2vmAyNizWG1NjJJRM9ihmAkbzxFh3vgL6ix04d32_GMrkJWHNg6w/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: data.username,
-          answer: data.answer,
+          answer: data.answer
         }),
       });
 
-      const result = await sheetRes.text(); // Optional: capture Sheets response
+      const sheetText = await sheetRes.text(); // Optional logging
+      console.log("📋 Google Sheets response:", sheetText);
 
-      return res.status(200).json({ success: true, message: "Saved to Google Sheets", data });
+      return res.status(200).json({ success: true, message: "Saved to Google Sheets" });
     } catch (error) {
-      console.error("Error:", error);
-      return res.status(500).json({ success: false, message: "Something went wrong" });
+      console.error("❌ Server error:", error);
+      return res.status(500).json({ success: false, message: "Internal server error" });
     }
   }
 
