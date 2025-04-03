@@ -9,12 +9,7 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const buffers = [];
-      for await (const chunk of req) {
-        buffers.push(chunk);
-      }
-      const bodyStr = Buffer.concat(buffers).toString();
-      const data = JSON.parse(bodyStr);
+      const data = req.body; // ✅ Use body directly on Vercel
 
       const recaptchaToken = data["g-recaptcha-response"];
       if (!recaptchaToken) {
@@ -38,11 +33,16 @@ export default async function handler(req, res) {
       }
 
       // ✅ Forward to Google Sheets Web App
-      await fetch("https://script.google.com/macros/s/AKfycby5wcQ3RMSwm8Rnrd2vmAyNizWG1NjJJRM9ihmAkbzxFh3vgL6ix04d32_GMrkJWHNg6w/exec", {
+      const sheetRes = await fetch("https://script.google.com/macros/s/AKfycby5wcQ3RMSwm8Rnrd2vmAyNizWG1NjJJRM9ihmAkbzxFh3vgL6ix04d32_GMrkJWHNg6w/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          username: data.username,
+          answer: data.answer,
+        }),
       });
+
+      const result = await sheetRes.text(); // Optional: capture Sheets response
 
       return res.status(200).json({ success: true, message: "Saved to Google Sheets", data });
     } catch (error) {
